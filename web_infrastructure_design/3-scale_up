@@ -1,0 +1,63 @@
+Scaling Up the Infrastructure Design
+
+To accommodate the scaling needs, we will extend the existing infrastructure by adding more specialized servers and configuring a load-balancer cluster. This approach improves performance, reliability, and scalability.
+Infrastructure Design
+
+    Current Setup Overview:
+        We have a web server (Nginx), an application server, a database server (MySQL), and a load balancer (HAproxy) already in place.
+
+    Scaling Requirements:
+        Add 1 server.
+        Add another load-balancer (HAproxy) configured as a cluster.
+        Split the components (web server, application server, and database) across their own dedicated servers.
+
+Infrastructure Components
+1. Additional Server:
+
+    Why it's added: We are adding one more server to ensure that the web server, application server, and database all run on separate machines. This increases the system's efficiency and allows individual components to scale independently.
+    By isolating each component (web, app, and database), we reduce contention for resources like CPU and memory, improving overall performance.
+
+2. Load-Balancer Cluster (HAProxy):
+
+    Why it's added: A second load-balancer is added to form a cluster with the existing load balancer. This configuration eliminates the single point of failure (SPOF) at the load-balancer level.
+    Cluster Configuration:
+        In an Active-Active setup, both load balancers distribute traffic simultaneously, providing redundancy and performance improvements.
+        In an Active-Passive setup, one load balancer handles traffic while the other stands by as a backup, ensuring failover in case the primary fails.
+    Benefit: Adding a clustered load-balancer improves fault tolerance. If one load balancer fails, the other takes over, ensuring uptime and service availability.
+
+3. Splitting the Components:
+Web Server (Nginx):
+
+    Why it's split: Running the web server (Nginx) on a dedicated server ensures that it can handle static content (HTML, CSS, JavaScript) and forward dynamic requests without being bogged down by application processing.
+    Role: The web server handles client requests, serves static content directly, and forwards dynamic requests to the application server.
+
+Application Server:
+
+    Why it's split: Isolating the application server ensures that it has dedicated resources to process dynamic requests, handle business logic, and communicate with the database server.
+    Role: The application server processes all dynamic requests, performs computations, and interacts with the database server to retrieve or store data.
+
+Database Server (MySQL):
+
+    Why it's split: By separating the database from the web and application servers, the database server can focus on handling database operations (read/write) without competing for resources with other components.
+    Role: The database server stores and manages the application data. It communicates with the application server to process queries, ensuring efficient data retrieval and storage.
+
+Explanation of Infrastructure Changes
+
+    Server Addition:
+        Added to dedicate resources for each key component (web, application, database). This ensures efficient operation and prevents resource contention.
+
+    Load-Balancer Cluster:
+        Added to avoid a single point of failure at the load-balancer level. Configured in an Active-Active or Active-Passive setup to enhance redundancy and uptime.
+
+    Component Splitting:
+        Web Server: Handles static content and forwards dynamic requests, reducing the load on the application server.
+        Application Server: Focuses on processing dynamic requests and business logic, improving responsiveness.
+        Database Server: Manages all data storage and retrieval, allowing it to operate independently for better performance and scalability.
+
+Summary of Scaled-Up Infrastructure
+
+    Load-Balancer Cluster: Provides redundancy and fault tolerance, ensuring that if one load balancer fails, the other takes over.
+    Dedicated Servers: Each major component (web, application, and database) is hosted on its own server, improving performance and allowing each part to scale independently.
+    Scalability: This design allows for the easy addition of more web servers, application servers, or database replicas as traffic or data grows.
+
+This infrastructure design is now capable of handling larger traffic loads while being more resilient and easier to scale.

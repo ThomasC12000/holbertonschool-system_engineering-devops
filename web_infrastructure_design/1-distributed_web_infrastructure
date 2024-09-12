@@ -1,0 +1,57 @@
+Infrastructure Design
+
+    User Requesting Website:
+        A user wants to access the website by typing www.foobar.com into their browser.
+
+    DNS Resolution:
+        DNS resolves www.foobar.com to the IP address of the load balancer, which is responsible for distributing traffic across multiple servers.
+
+Infrastructure Components
+
+    Load Balancer (HAProxy):
+        Why it's added: The load balancer distributes incoming traffic across multiple servers to ensure efficient usage of resources and redundancy.
+        Algorithm: The load balancer can be configured with various algorithms. A common choice is round-robin, which distributes incoming requests to servers in turn. Another option could be least connection, where the load balancer sends traffic to the server with the fewest active connections.
+        Active-Active vs Active-Passive:
+            Active-Active: In an Active-Active setup, multiple servers (in this case, two application servers) are active and handling traffic simultaneously. This increases performance and redundancy.
+            Active-Passive: In an Active-Passive setup, one server is active and handles traffic, while the other server remains on standby. The passive server only becomes active if the primary server fails.
+        In this case, we could configure HAProxy for an Active-Active setup to maximize the usage of both servers and improve redundancy.
+
+    Nginx (Web Server):
+        Why it's added: Nginx handles HTTP/HTTPS requests and serves static content (like HTML, CSS, and JavaScript) directly to users. It forwards dynamic requests to the application server.
+
+    Application Server:
+        Why it's added: The application server runs the application logic and processes dynamic requests. It retrieves necessary data from the database and sends it to the user via the web server.
+        Since we have two servers, these can both serve as application servers in an Active-Active setup.
+
+    Application Files:
+        Why they're added: These contain the website's code base, including HTML, CSS, JavaScript, and backend code (e.g., PHP, Node.js). These files are located on the application servers.
+
+    Database (MySQL) – Primary-Replica Cluster:
+        Why it's added: A database stores all the persistent data required by the application, such as user information, blog posts, etc.
+        Primary-Replica (Master-Slave) Cluster: The primary (master) node handles all the write operations (INSERT, UPDATE, DELETE). The replica (slave) nodes handle read operations and are synchronized with the primary node. If the primary node fails, a replica can be promoted to become the new primary.
+            Primary Node: Handles all database writes and data modifications.
+            Replica Node: Receives updates from the primary and can be used for read operations to balance the load and improve performance.
+
+Explanation of Issues
+
+    Single Point of Failure (SPOF):
+        Load Balancer: If the load balancer fails, the entire infrastructure goes down, as it is the entry point for all user requests.
+        Database Primary Node: If the primary database server fails, even though there are replicas, data might not be writable until failover occurs.
+
+    Security Issues:
+        No Firewall: There is no firewall protecting the servers from malicious traffic, which increases the risk of attacks like DDoS.
+        No HTTPS: The infrastructure doesn't include HTTPS, meaning data between the user's browser and the web server is not encrypted, leaving it vulnerable to man-in-the-middle attacks.
+
+    No Monitoring:
+        No Monitoring: Without proper monitoring tools, it’s difficult to detect and respond to issues in real time (e.g., server failure, performance bottlenecks, etc.). This is critical for ensuring uptime and maintaining a healthy infrastructure.
+
+Summary
+
+    Load Balancer (HAProxy): Distributes traffic to the two application servers in an Active-Active setup using a distribution algorithm like round-robin or least connection.
+    Nginx: Serves static files and forwards dynamic requests to the application servers.
+    Application Server: Handles the application logic and processes dynamic requests.
+    Database: A primary-replica setup where the primary node handles writes and the replica node handles reads, providing redundancy.
+
+Issues: Single point of failure at the load balancer and primary database, security vulnerabilities due to lack of HTTPS and firewall, and lack of monitoring for real-time alerts and system health tracking.
+
+This design improves scalability and redundancy compared to a single-server setup but still has some vulnerabilities and areas for improvement.

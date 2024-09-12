@@ -1,0 +1,52 @@
+Infrastructure Design
+
+    User Accessing the Website:
+        A user wants to access the website by typing www.foobar.com into their web browser.
+
+    Domain Name and DNS Resolution:
+        Domain Name: foobar.com is the domain name that users type to access your website.
+        DNS Record: The www in www.foobar.com is a subdomain. It is associated with an A record in DNS that points to the server's IP address 8.8.8.8.
+
+    Server Setup:
+        Server: This is a physical or virtual machine that hosts all the components necessary for running your website. In this case, it has the IP address 8.8.8.8.
+
+    Web Server (Nginx):
+        Role: Nginx handles HTTP requests from users. It serves static files (like HTML, CSS, and JavaScript) directly to the user and forwards dynamic requests to the application server.
+
+    Application Server:
+        Role: This server runs your application code. It processes requests received from the web server (Nginx), executes the application logic, and generates dynamic content. In this setup, it could be a part of the same server running a backend language like PHP.
+
+    Application Files:
+        Role: These are the files containing your website’s code base (HTML, CSS, JavaScript, PHP, etc.). They are located on the server and are served by Nginx or processed by the application server.
+
+    Database (MySQL):
+        Role: MySQL stores and manages data that the application needs. For example, it holds user information, posts, comments, etc. The application server queries the database to fetch or store data as needed.
+
+    Communication:
+        The server communicates with the user’s computer over the internet using HTTP/HTTPS protocols. The web server (Nginx) listens for incoming HTTP requests from the user and responds accordingly.
+
+Explanation of Issues
+
+    Single Point of Failure (SPOF):
+        Since everything is hosted on a single server, if the server fails, the entire website becomes inaccessible. There’s no redundancy or failover mechanism.
+
+    Downtime for Maintenance:
+        Any maintenance activities (like deploying new code or updates) require restarting the web server or application server, leading to temporary downtime. This affects the availability of the website during these periods.
+
+    Scalability:
+        This setup cannot handle a large volume of incoming traffic effectively. If traffic increases significantly, the single server may become overloaded, causing slow performance or crashes. Scaling would require upgrading the server or adding more servers, which this single-server setup does not support.
+
+Summary
+
+In this infrastructure:
+
+    User: Requests the website via www.foobar.com.
+    DNS: Resolves www.foobar.com to IP 8.8.8.8.
+    Nginx: Serves static content and forwards dynamic requests.
+    Application Server: Executes code and generates dynamic content.
+    MySQL Database: Stores and manages data.
+    Communication: Done over HTTP/HTTPS.
+
+Issues: SPOF, downtime during maintenance, and limited scalability.
+
+This design is suitable for small-scale projects or development purposes but might not meet the requirements for high-traffic websites or critical applications.

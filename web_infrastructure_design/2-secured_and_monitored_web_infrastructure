@@ -1,0 +1,61 @@
+Secured and Monitored Web Infrastructure Design
+
+For this task, we’ll design a three-server web infrastructure hosting www.foobar.com that is secured, serves encrypted traffic over HTTPS, and includes monitoring tools. Let’s break it down:
+Infrastructure Design
+
+    User Requesting Website:
+        A user enters www.foobar.com in their browser.
+
+    DNS Resolution and Load Balancing:
+        DNS resolves www.foobar.com to the IP address of the load balancer.
+        The load balancer distributes the traffic across multiple application servers.
+
+Key Components of the Infrastructure:
+1. Firewalls (3 firewalls):
+
+    Why they're added: Firewalls are crucial for filtering incoming and outgoing traffic. They protect the servers from malicious attacks and unauthorized access.
+    Roles:
+        Firewall 1: Protects the load balancer from external threats, filtering HTTP(S) traffic from the internet.
+        Firewall 2: Protects the web and application servers from any unauthorized access, only allowing communication from the load balancer.
+        Firewall 3: Protects the database server, allowing only the application servers to access it via specific ports (e.g., port 3306 for MySQL).
+    What firewalls are for: They control network traffic based on security rules, blocking harmful traffic while allowing legitimate requests.
+
+2. SSL Certificate (for HTTPS):
+
+    Why it's added: The SSL certificate encrypts the communication between the user’s browser and the web server, ensuring data privacy and protection against attacks like man-in-the-middle (MitM).
+    Why traffic is served over HTTPS: HTTPS ensures that sensitive data (such as passwords, payment details, etc.) transmitted between the server and the client is encrypted. It builds trust with users and prevents interception by attackers.
+    The SSL certificate should be installed on the load balancer or web servers, depending on the SSL termination strategy (more on this later).
+
+3. Monitoring Clients (3 monitoring clients):
+
+    Why they're added: Monitoring clients are used to track the performance and health of the infrastructure in real time, providing visibility into server load, traffic, errors, and system logs.
+    Roles:
+        Monitoring Client 1: Installed on the load balancer to collect data on traffic, request distribution, and response times.
+        Monitoring Client 2: Installed on the application servers to monitor CPU, memory, request throughput, and error rates.
+        Monitoring Client 3: Installed on the database server to track query performance, connection counts, and slow queries.
+    What monitoring is for: Monitoring allows you to detect issues like high traffic, server failures, or performance degradation. It helps in maintaining uptime and alerting administrators about potential issues.
+    How monitoring tools collect data: The monitoring clients collect logs and metrics (e.g., CPU usage, memory, query performance) and send them to a centralized monitoring service (like Sumologic, Prometheus, or Datadog) for analysis and alerting.
+    Monitoring Web Server QPS (Queries Per Second): To monitor the number of queries your web server handles per second, you would use a monitoring tool like Sumologic or Prometheus. The monitoring client installed on the web server collects request logs, counts HTTP requests, and calculates the QPS metric, which is then visualized through dashboards or sent as alerts.
+
+Explanation of Infrastructure Issues
+1. SSL Termination at the Load Balancer:
+
+    Why it’s an issue: Terminating SSL at the load balancer means that traffic between the load balancer and the application servers is unencrypted, potentially exposing sensitive data within your internal network. To avoid this, it's better to use end-to-end encryption, where SSL is terminated at the application server, or use a technique like SSL passthrough so the encrypted traffic is maintained until it reaches the application server.
+
+2. Having Only One MySQL Server for Writes:
+
+    Why it’s an issue: If you have only one MySQL server capable of accepting writes (primary), it creates a single point of failure. If that server crashes or experiences high load, the database won't be able to accept writes, potentially causing data loss or downtime. A Primary-Replica setup or a Galera Cluster can mitigate this by allowing failover to another node.
+
+3. Having All Servers with the Same Components:
+
+    Why it’s a problem: Having all servers perform the same roles (e.g., each acting as a web server, application server, and database server) can create performance bottlenecks. It also makes scaling difficult because you can't individually scale different tiers (e.g., adding more application servers but keeping the database or load balancer intact). Specializing each server (e.g., one as a web server, one as a database server) allows for better resource allocation and scalability.
+
+Summary of Secured Infrastructure
+
+    Firewalls: Protect different layers (load balancer, application servers, database) by controlling network traffic and blocking unauthorized access.
+    SSL Certificate: Encrypts data transmitted between the user and the servers, ensuring secure communication over HTTPS.
+    Monitoring Clients: Installed on the load balancer, application servers, and database server to monitor performance, errors, traffic, and health.
+
+Issues: SSL termination at the load balancer exposes internal traffic to vulnerabilities, a single MySQL write server introduces a SPOF, and having all servers performing the same functions is inefficient for scaling and resource optimization.
+
+This infrastructure is now more secure, serving encrypted traffic, and provides real-time monitoring for operational health and alerting.
